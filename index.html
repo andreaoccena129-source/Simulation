@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Public Health Center System</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f0f4f8;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      padding: 20px;
+    }
+
+    /* --- LOGIN STYLES --- */
+    #loginPage {
+      display: flex;
+      background: url('center.jpg') no-repeat center center/cover;
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+    }
+    .login-container {
+      background: rgba(82, 80, 80, 0.4);
+      backdrop-filter: blur(15px);
+      -webkit-backdrop-filter: blur(15px);
+      width: 100%;
+      max-width: 400px;
+      border-radius: 10px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.2);
+      overflow: hidden;
+      padding: 30px;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 25px;
+      color: #fff;
+    }
+    input, select {
+      width: 100%;
+      padding: 12px;
+      margin: 8px 0;
+      border: 1px solid #aaa;
+      border-radius: 8px;
+      font-size: 14px;
+      background: rgba(255, 255, 255, 0.7);
+    }
+    input:focus, select:focus {
+      border-color: #78429c;
+      outline: none;
+      background: rgba(255, 255, 255, 0.9);
+    }
+    .password-wrapper {
+      position: relative;
+    }
+    .toggle-password {
+      position: absolute;
+      right: 15px;
+      top: 50%;
+      transform: translateY(-50%);
+      cursor: pointer;
+      color: #78429c;
+      font-size: 18px;
+      user-select: none;
+    }
+    button {
+      width: 100%;
+      background: #add8f5;
+      color: #4b1544;
+      border: none;
+      padding: 14px;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-top: 10px;
+    }
+    button:hover {
+      background: #2980b9;
+      box-shadow: 0 8px 18px rgba(0,0,0,0.2);
+      transform: translateY(-2px);
+      color: white;
+    }
+    #error-message {
+      color: #d63031;
+      text-align: center;
+      margin-top: 10px;
+      font-size: 13px;
+      min-height: 18px;
+      font-weight: 500;
+    }
+
+    /* --- MAIN SYSTEM STYLES --- */
+    #mainPage {
+      display: none;
+      width: 100%;
+      max-width: 1200px;
+      padding: 20px;
+    }
+    .input-area {
+      text-align: center;
+      background: white;
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      margin: 0 auto 30px;
+    }
+    .input-area input, .input-area select {
+      width: 250px;
+      display: inline-block;
+    }
+    .btn-add { background: #2889c9; color: white; }
+    .btn-add:hover { background: #1e6a9c; }
+    .btn-serve { background: #27ae60; color: white; }
+    .btn-serve:hover { background: #1e874b; }
+    .btn-clear { background: #e74c3c; color: white; }
+    .btn-clear:hover { background: #c0392b; }
+
+    #serving {
+      text-align: center;
+      font-size: 22px;
+      font-weight: bold;
+      color: #e74c3c;
+      background: #fff5f5;
+      padding: 15px;
+      border-radius: 10px;
+      margin: 0 auto 25px;
+      border: 2px solid #ffcccc;
+    }
+    .container {
+      display: flex;
+      justify-content: space-between;
+      gap: 25px;
+      flex-wrap: wrap;
+    }
+    .box {
+      flex: 1;
+      min-width: 280px;
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    .box h3 {
+      text-align: center;
+      color: #2c3e50;
+      margin-bottom: 15px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #eee;
+    }
+    .counter {
+      text-align: center;
+      font-size: 16px;
+      font-weight: bold;
+      color: #2889c9;
+      margin-bottom: 15px;
+      background: #e8f4fc;
+      padding: 8px;
+      border-radius: 6px;
+    }
+    .patient {
+      padding: 15px;
+      margin: 10px 0;
+      border-radius: 8px;
+      font-size: 15px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
+    .emergency { background: #ff4d4d; color: white; border-left: 5px solid #cc0000; }
+    .senior { background: #ffa64d; color: white; border-left: 5px solid #cc7a00; }
+    .normal { background: #66ccff; color: #2c3e50; border-left: 5px solid #2889c9; }
+    .onprocess-box { background: #fff3cd; border: 2px solid #ffc107; }
+    .onprocess-box h3 { color: #856404; border-bottom-color: #ffc107; }
+    .patient.onprocess { background: #ffc107; color: #856404; font-weight: bold; border-left: 5px solid #d39e00; }
+  </style>
+</head>
+<body>
+
+<!-- LOGIN PAGE -->
+<div id="loginPage">
+  <div class="login-container">
+    <h1>🏥 Public Health Center</h1>
+    <form onsubmit="return login()">
+      <input type="text" id="fullname" placeholder="Full Name" required><br>
+      <input type="email" id="email" placeholder="Email Address" required><br>
+      <input type="text" id="username" placeholder="Username" required><br>
+      
+      <div class="password-wrapper">
+        <input type="password" id="password" placeholder="Password" required>
+        <span class="toggle-password" onclick="togglePass()">👁️</span>
+      </div>
+
+      <select id="role">
+        <option value="admin">Admin</option>
+        <option value="staff">Staff</option>
+      </select><br>
+
+      <button type="submit">Login</button>
+      <div id="error-message"></div>
+    </form>
+  </div>
+</div>
+
+<!-- MAIN SYSTEM PAGE -->
+<div id="mainPage">
+  <h1>🏥 Public Health Center System</h1>
+
+  <div class="input-area">
+    <input type="text" id="name" placeholder="Enter Patient Name">
+    <select id="type">
+      <option value="normal">Normal</option>
+      <option value="senior">Senior</option>
+      <option value="emergency">Emergency</option>
+    </select>
+    <br>
+    <button class="btn-add" onclick="addPatient()">➕ Add Patient</button>
+    <button class="btn-serve" onclick="servePatient()">🔔 Serve Next</button>
+    <button class="btn-clear" onclick="clearAll()">🗑️ Clear All</button>
+  </div>
+
+  <h2 id="serving">Now Serving: None</h2>
+
+  <div class="container">
+    <div class="box">
+      <h3>📋 Queue</h3>
+      <div class="counter" id="counter">Waiting: 0</div>
+      <div id="queue"></div>
+    </div>
+
+    <div class="box onprocess-box">
+      <h3>⚕️ On Process</h3>
+      <div id="onprocess">
+        <div class="patient onprocess">No patient currently being treated</div>
+      </div>
+    </div>
+
+    <div class="box">
+      <h3>📜 History</h3>
+      <div id="history"></div>
+    </div>
+  </div>
+</div>
+
+<audio id="alertSound">
+  <source src="https://www.soundjay.com/buttons/sounds/beep-07.mp3" type="audio/mpeg">
+
+
+<script>
+// --- VARIABLES ---
+let queue = [];
+let history = [];
+let currentPatient = null;
+let counter = 1;
+
+const priorityRank = {
+  "emergency": 1,
+  "senior": 2,
+  "normal": 3
+};
+
+// --- LOGIN FUNCTIONS ---
+function login() {
+  const fullname = document.getElementById('fullname').value;
+  const email = document.getElementById('email').value;
+  const user = document.getElementById('username').value;
+  const pass = document.getElementById('password').value;
+  const errorDiv = document.getElementById('error-message');
+  
+  if(fullname && email && user && pass) {
+    alert('Login successful!');
+    document.getElementById('loginPage').style.display = 'none';
+    document.getElementById('mainPage').style.display = 'block';
+    errorDiv.textContent = "";
+    loadData(); // Load saved data after login
+    displayAll();
+    return false;
+  } else {
+    errorDiv.textContent = "⚠ Please fill in all required fields.";
+    return false;
+  }
+}
+
+function togglePass() {
+  const passField = document.getElementById('password');
+  const icon = document.querySelector('.toggle-password');
+  
+  if (passField.type === "password") {
+    passField.type = "text";
+    icon.textContent = "🙈";
+  } else {
+    passField.type = "password";
+    icon.textContent = "👁️";
+  }
+}
+
+// --- DATABASE & SYSTEM FUNCTIONS ---
+function loadData() {
+  if(localStorage.getItem('healthCenterData')) {
+    const data = JSON.parse(localStorage.getItem('healthCenterData'));
+    queue = data.queue || [];
+    history = data.history || [];
+    counter = data.counter || 1;
+    currentPatient = data.currentPatient || null;
+  }
+}
+
+function saveData() {
+  const data = {
+    queue: queue,
+    history: history,
+    counter: counter,
+    currentPatient: currentPatient
+  };
+  localStorage.setItem('healthCenterData', JSON.stringify(data));
+}
+
+function generateNumber() {
+  return "P" + String(counter++).padStart(3, '0');
+}
+
+function getTime() {
+  let now = new Date();
+  return now.toLocaleTimeString();
+}
+
+function addPatient() {
+  let name = document.getElementById("name").value;
+  let type = document.getElementById("type").value;
+
+  if(name === "") {
+    alert("⚠ Please enter patient name");
+    return;
+  }
+
+  let patient = {
+    number: generateNumber(),
+    name: name,
+    type: type,
+    time: getTime()
+  };
+
+  queue.push(patient);
+  queue.sort((a, b) => priorityRank[a.type] - priorityRank[b.type]);
+
+  saveData();
+  displayQueue();
+  updateCounter();
+  document.getElementById("name").value = "";
+}
+
+function servePatient() {
+  if(currentPatient) {
+    history.unshift(currentPatient);
+  }
+
+  if(queue.length === 0) {
+    document.getElementById("serving").innerText = "No patients in queue";
+    currentPatient = null;
+    saveData();
+    displayOnProcess();
+    return;
+  }
+
+  currentPatient = queue.shift();
+
+  document.getElementById("serving").innerText =
+    `Now Serving: ${currentPatient.number} - ${currentPatient.name} (${currentPatient.type})`;
+
+  document.getElementById("alertSound").play().catch(e => console.log("Audio play error"));
+
+  saveData();
+  displayAll();
+}
+
+function clearAll() {
+  if(confirm("Are you sure you want to clear all data?")) {
+    queue = [];
+    history = [];
+    currentPatient = null;
+    counter = 1;
+    saveData();
+    displayAll();
+    document.getElementById("serving").innerText = "Now Serving: None";
+  }
+}
+
+function displayQueue() {
+  let q = document.getElementById("queue");
+  q.innerHTML = "";
+  queue.forEach(p => {
+    let div = createPatientElement(p);
+    q.appendChild(div);
+  });
+}
+
+function displayOnProcess() {
+  let op = document.getElementById("onprocess");
+  op.innerHTML = "";
+  if(currentPatient) {
+    let div = createPatientElement(currentPatient, true);
+    op.appendChild(div);
+  } else {
+    op.innerHTML = `<div class="patient onprocess">No patient currently being treated</div>`;
+  }
+}
+
+function displayHistory() {
+  let h = document.getElementById("history");
+  h.innerHTML = "";
+  history.forEach(p => {
+    let div = createPatientElement(p);
+    div.innerHTML += `<span>✅ Served</span>`;
+    h.appendChild(div);
+  });
+}
+
+function createPatientElement(p, isOnProcess = false) {
+  let div = document.createElement("div");
+  div.className = `patient ${isOnProcess ? 'onprocess ' : ''}${p.type}`;
+  div.innerHTML = `<span><strong>${p.number}</strong> - ${p.name}</span><span>${p.time}</span>`;
+  return div;
+}
+
+function updateCounter() {
+  document.getElementById("counter").innerText = `Waiting: ${queue.length}`;
+}
+
+function displayAll() {
+  displayQueue();
+  displayOnProcess();
+  displayHistory();
+  updateCounter();
+}
+</script>
+
+</body>
+</html>
